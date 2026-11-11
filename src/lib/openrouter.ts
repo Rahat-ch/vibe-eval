@@ -182,6 +182,8 @@ export function isHealthy(e: Endpoint) {
 export interface AnswerResult {
   text: string
   error?: string
+  /** True when OpenRouter refused the request before any provider ran it. */
+  rejected?: boolean
   generationId?: string
   finishReason?: string
   usage?: Usage
@@ -235,7 +237,10 @@ export async function ask(opts: AskOptions): Promise<AnswerResult> {
       signal: opts.signal,
     })
     if (!res.ok || !res.body) {
+      // Refused up front: a bad key, no credit, or a provider your account's
+      // privacy settings exclude. Nothing ran, so nothing was billed.
       result.error = await errorMessage(res)
+      result.rejected = res.status !== 429 && res.status < 500
       return result
     }
     result.servedBy = res.headers.get('X-Provider-Name') ?? undefined

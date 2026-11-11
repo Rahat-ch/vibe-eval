@@ -190,6 +190,8 @@ textarea {
 .error {
   color: var(--warn);
   font-size: 0.92rem;
+  overflow-wrap: anywhere;
+  margin: 0;
 }
 
 .banner,

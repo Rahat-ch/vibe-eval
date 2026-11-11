@@ -105,6 +105,10 @@ The provider test is the point. If you can't tell four providers apart, take the
 
 **Usage comes after the end.** In a stream, cost and token counts arrive after the chunk that says the answer is finished. A reader that stops at `finish_reason` shows every answer as free. One thread in the Discord's help forum took four days to reach exactly this answer.
 
+**My own account refused my reference contender.** On the first live run, DeepSeek's own endpoint failed all five rounds. My OpenRouter privacy settings exclude providers that train on prompts, and that endpoint is one of them, so OpenRouter refused the pinned request before it ran. Normal routing hides this by quietly choosing another provider; pinning exposes it. The app now stops in round one when a contender is refused outright, sends you back to the lineup, and shows OpenRouter's reason under that contender, instead of letting it fail every round and explaining at the end.
+
+**The record of who served an answer isn't there straight away.** The generation lookup returned nothing for the first few seconds after a stream ended, so the reveal retries it and fills in "served by" as the records appear.
+
 **A browser-held key needs its own guardrails.** The PKCE flow has no option to cap the key it creates, so the cap had to live in the app: an estimate, a ceiling, and a budget stop.
 
 ## Run it locally

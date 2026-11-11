@@ -44,6 +44,8 @@ export default function App() {
   const [rounds, setRounds] = useState<Round[]>([])
   const [current, setCurrent] = useState(0)
   const [stopReason, setStopReason] = useState('')
+  // Contenders OpenRouter refused in round one, keyed by "model|provider".
+  const [rejections, setRejections] = useState<Record<string, string>>({})
 
   // The round engine reads and writes this ref so that answers arriving from
   // four requests at once never work from a stale copy of the rounds.
@@ -126,6 +128,22 @@ export default function App() {
             round.answers[i] = { contender: i, ...result }
             remaining -= 1
             if (remaining === 0) {
+              // A contender refused outright in round one will be refused every
+              // round. Stop now and say why, before more is spent.
+              const refused = round.answers.filter((a) => a.rejected)
+              if (index === 0 && refused.length) {
+                abortRef.current?.abort()
+                setRejections(
+                  Object.fromEntries(
+                    refused.map((a) => {
+                      const c = pack.lineup[a.contender]
+                      return [`${c.model}|${c.provider}`, a.error ?? 'OpenRouter refused this request.']
+                    }),
+                  ),
+                )
+                setStage('setup')
+                return
+              }
               // Only now are the answers shown, in a fresh random order, so
               // neither speed nor position gives a contender away.
               round.order = shuffled(pack.lineup.length)
@@ -158,6 +176,7 @@ export default function App() {
     abortRef.current = new AbortController()
     roundsRef.current = prompts.map((prompt) => ({ prompt, status: 'waiting' as const, answers: [], order: [] }))
     setStopReason('')
+    setRejections({})
     setCurrent(0)
     publish()
     setStage('rounds')
@@ -256,6 +275,7 @@ export default function App() {
           models={models}
           endpoints={endpoints}
           catalogError={catalogError}
+          rejections={rejections}
           onStart={begin}
         />
       ) : stage === 'rounds' && rounds[current] ? (

@@ -58,6 +58,8 @@ export interface Answer {
   contender: number
   text: string
   error?: string
+  /** OpenRouter refused the request outright, e.g. the provider is excluded by the account's privacy settings. */
+  rejected?: boolean
   generationId?: string
   finishReason?: string
   usage?: Usage

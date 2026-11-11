@@ -13,6 +13,8 @@ interface Props {
   models: ModelInfo[]
   endpoints: Record<string, Endpoint[] | undefined>
   catalogError: string
+  /** Why OpenRouter refused a contender last time, keyed by "model|provider". */
+  rejections: Record<string, string>
   onStart: () => void
 }
 
@@ -113,6 +115,12 @@ export function Setup(props: Props) {
           {pack.by ? ` by ${pack.by}` : ''}. Change anything you like before running it.
         </p>
       )}
+      {Object.keys(props.rejections).length > 0 && (
+        <p className="banner">
+          The test stopped in round one because OpenRouter refused a contender, so every round would have failed the
+          same way. Pick a different provider for it below, or change the account setting it mentions.
+        </p>
+      )}
       {props.catalogError && <p className="error">Couldn't load the model list: {props.catalogError}</p>}
 
       <section>
@@ -142,6 +150,7 @@ export function Setup(props: Props) {
             const list = endpoints[c.model]
             const info = models.find((m) => m.id === c.model)
             const efforts = info?.reasoning?.supported_efforts ?? []
+            const rejection = props.rejections[`${c.model}|${c.provider}`]
             return (
               <div className="slot" key={i}>
                 <span className="slot-label">
@@ -187,6 +196,7 @@ export function Setup(props: Props) {
                     ))}
                   </select>
                 )}
+                {rejection && <p className="error">OpenRouter refused this contender: {rejection}</p>}
               </div>
             )
           })}
