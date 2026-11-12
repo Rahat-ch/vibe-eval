@@ -1318,3 +1318,12 @@ a.brand {
   padding: 0;
   background: none;
 }
+
+.demo video {
+  display: block;
+  width: 100%;
+  border-radius: var(--r-panel);
+  border: 1px solid var(--line);
+  background: #000;
+  margin: 20px 0 14px;
+}
