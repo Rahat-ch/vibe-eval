@@ -49,6 +49,9 @@ function ModelInput({ value, models, onCommit, label }: {
   )
 }
 
+// Kept outside the component so the draft labels survive a trip through a taste test and back.
+let rememberedDrafts = new Set<string>()
+
 export function Setup(props: Props) {
   const { pack, setPack, models, endpoints, budget, setBudget } = props
   const [useCase, setUseCase] = useState('')
@@ -56,7 +59,11 @@ export function Setup(props: Props) {
   const [writeError, setWriteError] = useState('')
   const [showSystem, setShowSystem] = useState(Boolean(pack.system))
   // Prompts a model wrote, by their exact text. Editing one changes its text, so it stops being a draft.
-  const [drafts, setDrafts] = useState<Set<string>>(() => new Set())
+  const [drafts, setDraftState] = useState<Set<string>>(() => rememberedDrafts)
+  const setDrafts = (update: (d: Set<string>) => Set<string>) => {
+    rememberedDrafts = update(rememberedDrafts)
+    setDraftState(rememberedDrafts)
+  }
 
   const setMode = (mode: Mode) => {
     if (mode === pack.mode) return
@@ -130,13 +137,13 @@ export function Setup(props: Props) {
       <section>
         <h2>1. What are you testing?</h2>
         <div className="tabs" role="tablist">
-          <button role="tab" aria-selected={pack.mode === 'provider'} onClick={() => setMode('provider')}>
-            <b>Provider test</b>
-            <span>One model, four providers. Does it matter who serves it?</span>
-          </button>
           <button role="tab" aria-selected={pack.mode === 'model'} onClick={() => setMode('model')}>
             <b>Model test</b>
             <span>Your current model against three others. Would you switch?</span>
+          </button>
+          <button role="tab" aria-selected={pack.mode === 'provider'} onClick={() => setMode('provider')}>
+            <b>Provider test</b>
+            <span>One model, four providers. Does it matter who serves it?</span>
           </button>
         </div>
       </section>

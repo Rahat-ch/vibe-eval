@@ -35,7 +35,7 @@ export default function App() {
   const [key, setKey] = useState<string | null>(() => loadKey())
   const [authError, setAuthError] = useState('')
   const [stage, setStage] = useState<Stage>('setup')
-  const [pack, setPack] = useState<Pack>(() => packFromLocation() ?? unparkPack() ?? emptyPack('provider'))
+  const [pack, setPack] = useState<Pack>(() => packFromLocation() ?? unparkPack() ?? emptyPack('model'))
   const [opened] = useState(() => packFromLocation() !== null)
   const [budget, setBudget] = useState(DEFAULT_BUDGET)
   const [models, setModels] = useState<ModelInfo[]>([])

@@ -31,20 +31,33 @@ export function Connect({ pack, opened, error, onKey }: Props) {
 
   return (
     <main className="connect">
+      <div className="mystery" aria-hidden="true">
+        {['A', 'B', 'C', 'D'].map((l) => (
+          <span key={l}>{l}</span>
+        ))}
+      </div>
       <p className="eyebrow">A blind taste test for language models</p>
-      <h1>Does it matter who serves your model?</h1>
+      <h1>
+        Is it benchmaxxed?
+        <br />
+        Taste it blind.
+      </h1>
       <p className="lede">
-        The same model is hosted by a dozen providers at different prices, speeds and levels of compression. Paste
-        your own prompts, get four answers with the names hidden, and pick the one you like. Then see who wrote it
-        and what it cost.
+        A leaderboard can't tell you how a model handles your prompts, or whether the provider serving it is giving
+        you the full-strength version. Paste your own prompts, get four answers with the names hidden, and pick
+        the one you like. Then see who wrote it and what it cost.
       </p>
 
       <ol className="steps">
         <li>
-          <b>Provider test.</b> One model, four providers. Can you tell them apart?
+          <span className="tag">Model test</span>
+          <b>Your model against three others.</b>
+          <span>Is yours still the one you'd pick?</span>
         </li>
         <li>
-          <b>Model test.</b> The model you use now against three others. Is yours still the one you'd pick?
+          <span className="tag">Provider test</span>
+          <b>One model, four providers.</b>
+          <span>Can you tell them apart?</span>
         </li>
       </ol>
 
