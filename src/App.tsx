@@ -247,6 +247,7 @@ export default function App() {
           Vibe Eval
         </button>
         <nav>
+          <a href="/growth-plan">Growth plan</a>
           <a href={REPO_URL} target="_blank" rel="noreferrer">
             Source
           </a>
@@ -314,7 +315,7 @@ export default function App() {
         <a href={REPO_URL} target="_blank" rel="noreferrer">
           Read the code
         </a>
-        .
+        . <a href="/growth-plan">Growth plan</a>.
       </footer>
     </div>
   )

@@ -80,13 +80,15 @@ function parse(raw: string): Pack | null {
     if (p?.v !== 1 || (p.mode !== 'provider' && p.mode !== 'model')) return null
     if (!Array.isArray(p.prompts) || !Array.isArray(p.lineup) || p.lineup.length !== SLOTS) return null
     const str = (x: unknown, max: number) => (typeof x === 'string' ? x.slice(0, max) : '')
+    const prompts: string[] = p.prompts.slice(0, 12).map((x: unknown) => str(x, 20000)).filter(Boolean)
     return {
       v: 1,
       mode: p.mode,
       title: str(p.title, 120),
       by: str(p.by, 60),
       system: str(p.system, 20000),
-      prompts: p.prompts.slice(0, 12).map((x: unknown) => str(x, 20000)).filter(Boolean),
+      // A pack can ship a lineup with no prompts, for the person opening it to fill in.
+      prompts: prompts.length ? prompts : [''],
       lineup: p.lineup.map((c: any) => ({
         model: str(c?.model, 200),
         provider: str(c?.provider, 200),
