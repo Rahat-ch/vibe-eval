@@ -331,7 +331,7 @@ export async function lookUpProvider(key: string, generationId: string): Promise
 }
 
 // ---------------------------------------------------------------------------
-// "Write some for me": turn a use case into test prompts
+// "Draft some for me": turn a use case into test prompts
 // ---------------------------------------------------------------------------
 
 const PROMPT_WRITER = 'openai/gpt-6-luna'

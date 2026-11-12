@@ -188,6 +188,11 @@ export default function App() {
     publish()
   }
 
+  const setNote = (note: string) => {
+    roundsRef.current[current].note = note
+    publish()
+  }
+
   const finish = () => {
     abortRef.current?.abort()
     setStage('reveal')
@@ -287,6 +292,7 @@ export default function App() {
           spent={totalSpent(rounds)}
           budget={budget}
           onPick={setPick}
+          onNote={setNote}
           onNext={next}
           onFinish={finish}
         />

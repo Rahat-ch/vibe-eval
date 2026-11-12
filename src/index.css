@@ -688,3 +688,57 @@ textarea {
     display: none;
   }
 }
+
+/* ---- Notes and drafts --------------------------------------------------- */
+
+.why {
+  display: block;
+  margin-top: 1.2em;
+}
+
+.why span {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.4em;
+}
+
+.why i {
+  color: var(--muted);
+}
+
+.why input {
+  width: 100%;
+}
+
+.notes ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.8em;
+}
+
+.notes li {
+  border-left: 3px solid var(--line);
+  padding: 0.3em 0 0.3em 0.9em;
+  margin-bottom: 0.7em;
+}
+
+.notes li b {
+  margin-right: 0.6em;
+}
+
+.journey-note {
+  margin: 0;
+  padding: 0 1em 0.8em;
+  font-style: italic;
+}
+
+.draft-note {
+  margin: 0.3em 0 0.9em;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.draft-note .tag {
+  margin-left: 0;
+  margin-right: 6px;
+}

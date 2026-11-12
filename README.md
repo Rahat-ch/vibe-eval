@@ -47,19 +47,24 @@ In the Discord, the working fix is folklore: people block providers "just in cas
 
 1. **Sign in with OpenRouter.** One button; no key to paste.
 2. **Choose a provider test or a model test,** and adjust the four contenders. A contender is a model, pinned to one provider, at one reasoning effort.
-3. **Paste your own prompts,** the real messages your product receives. If you have none, describe your use case and a model writes five to start from.
+3. **Paste your own prompts,** the real messages your product receives, and above all the ones that have gone wrong before. If you have none, describe your use case and a model drafts five. They're marked as drafts until you edit them, because generated prompts are tidier and easier than real ones.
 4. **See the cost first.** An estimate before you start, a running total, and a budget that stops the test.
-5. **Judge blind.** For each prompt the four answers appear together, in random order, labelled A to D. Pick the best, say you can't tell them apart, or say none are good.
-6. **The reveal.** Which contender you preferred, with cost per answer, speed and reasoning tokens for each, and the full journey of every answer: which provider served it, tokens in and out, cost, time to first word.
-7. **Share it as a pack.** A link that carries the prompts, lineup and settings, so anyone can rerun the same test on their own key.
+5. **Judge blind.** For each prompt the four answers appear together, in random order, labelled A to D. Pick the best, say you can't tell them apart, or say none are good. Then, if you want, write one line on why.
+6. **The reveal.** Which contender you preferred, with cost per answer, speed and reasoning tokens for each, your reasons side by side, and the full journey of every answer: which provider served it, tokens in and out, cost, time to first word.
+7. **Share it as a pack.** A link that carries the prompts, lineup and settings, so anyone can rerun the same test on their own key. "Share on X" opens a post with the verdict and that link, and "Copy card as image" puts the result card on your clipboard to paste into it.
 
-The provider test is the point. If you can't tell four providers apart, take the cheapest one and stop paying extra. If one is clearly worse, you've found in five minutes what people in the Discord argue about for weeks.
+The provider test is the point. If you can't tell four providers apart on prompts that are hard for your task, take the cheapest one and stop paying extra. If one is clearly worse, you've found in five minutes what people in the Discord argue about for weeks.
+
+### What the result is worth
+
+A first look, not an eval. Five prompts, one answer each, judged by one person is a preference: a 3 to 2 split is within chance, and a single answer per provider can be a lucky or unlucky sample. The result card says this in plain words, and it warns when most rounds tie that the prompts may simply be too easy. The part that carries over into a real eval is the one-line reasons. If "ignored the mood" shows up three times, that's a failure you can write a proper test for.
 
 ### What I deliberately didn't build
 
-- **No judge model and no automatic scoring.** The Discord regulars distrust LLM judges, and their own answer to benchmaxxing is private benchmarks on their own prompts. This is a faster way to do that, not a replacement for judgement. The trade-off is that a blind pick can reward style over correctness.
-- **No leaderboard and no stored results.** Five rounds from one person is a first impression, not a benchmark, and the reveal says so. Aggregating picks would claim more than the data supports.
-- **No server, database or accounts.** It's a static page. Results live in the tab; sharing is a link or copied text.
+- **No judge model and no automatic scoring.** A judge model you haven't checked against your own labels is worse than no judge, and checking one takes a hundred or more hand-labelled examples. The Discord regulars distrust LLM judges for the same reason, and their answer to benchmaxxing is private benchmarks on their own prompts. This is a faster way to start that, not a replacement for judgement. The trade-off is that a blind pick can reward style over correctness, which is what the "why" line is there to catch.
+- **No repeat runs.** Each contender answers each prompt once. Running every prompt several times would show how much of a gap is luck, and it would also triple the cost and the reading. Rerunning the pack is the manual version.
+- **No leaderboard and no stored results.** Five rounds from one person is a first look, not a benchmark, and the reveal says so. Aggregating picks would claim more than the data supports.
+- **No server, database or accounts.** It's a static page. Results live in the tab; sharing is a link, a post on X, or a picture of the result card.
 - **No multi-turn chat, tools or file inputs.** One prompt, one answer. That leaves out agent and tool-calling workloads, which is a real gap: those are exactly where people report providers differing.
 - **No live streaming on screen.** My first design streamed answers side by side. It looked great and broke the test, because speed gives contenders away. See Learnings.
 - **Not a copy of OpenRouter's chat page,** which already compares models side by side on one message. What it doesn't do is hide the names, pin each provider, or compare one model across providers.
@@ -68,7 +73,7 @@ The provider test is the point. If you can't tell four providers apart, take the
 
 **Browser-only, plain `fetch`.** OpenRouter's API allows cross-origin calls, so there is no backend. Every call is in [`src/lib/openrouter.ts`](src/lib/openrouter.ts), written without an SDK so the file shows exactly what goes over the wire. For a tool meant to teach, that mattered more than convenience.
 
-**Sign-in with OAuth PKCE.** The page sends a hashed one-time secret to OpenRouter, the visitor approves, and the page exchanges the returned code for a key. The key is kept in `sessionStorage` (this tab only, gone when it closes), sent only to `openrouter.ai`, and the code is stripped from the address bar immediately. That key has no spending cap of its own, which is why the app has its own budget.
+**Sign-in with OAuth PKCE.** The page sends a hashed one-time secret to OpenRouter, the visitor approves, and the page exchanges the returned code for a key. The key is kept in `sessionStorage` (this tab only, gone when it closes), sent only to `openrouter.ai`, and the code is stripped from the address bar immediately. OpenRouter's approval screen lets the visitor give that key a credit limit and an expiry, but both are optional and the sign-in link can't set them, so the app has its own budget as well.
 
 **Routing: pinned, on purpose.** Each request sends `provider: { only: ["<endpoint>"], allow_fallbacks: false }`. Normally OpenRouter's routing and fallbacks are the feature. In a taste test they're a bug: a silent fallback means judging a different contender than the label says.
 
@@ -83,17 +88,19 @@ The provider test is the point. If you can't tell four providers apart, take the
 
 **Reasoning effort is part of the contender.** Each one runs at its model's default unless you change it, and the reveal states the effort and the reasoning tokens used. Forcing everyone to "low" would be cheaper and would handicap models built to think.
 
-**Prompt writing.** "Write some for me" uses GPT-6 Luna with a JSON schema (`response_format`) and `provider: { require_parameters: true }`, so the request only goes to a provider that supports structured output. It's small, cheap, and every one of its endpoints supports schemas.
+**Prompt drafting.** "Draft some for me" uses GPT-6 Luna with a JSON schema (`response_format`) and `provider: { require_parameters: true }`, so the request only goes to a provider that supports structured output. It's small, cheap, and every one of its endpoints supports schemas.
 
 **Spend guard.** Every answer has a 3,000-token output cap, which bounds the worst case. The app shows an estimate and a ceiling before starting, tracks real spend from each response's `usage.cost`, and won't start a new round once the budget (default $1) is passed.
 
-**Packs live in the link.** The part of the URL after `#` holds the pack as base64 JSON. Browsers never send that part to a server. A pack is checked for shape and size when opened, and never contains a key or anyone's picks.
+**Packs live in the link.** The part of the URL after `#` holds the whole pack, written compactly, compressed with deflate and base64url-encoded. That makes the link less than half the length of plain JSON, though it still grows with your prompts; a truly short link would need a server to store the pack, and there isn't one. Browsers never send the `#` part to a server. A pack is checked for shape and size when opened, and never contains a key or anyone's picks.
 
 **Who served it.** The reveal confirms each answer's provider from OpenRouter's generation record (`GET /api/v1/generation`), not from what the app asked for.
 
 ## Learnings
 
 **I planned the wrong tool first.** My first plan was a blind *model* comparison. Two independent reviews, each reading the live Discord, came back with the same objections: OpenRouter's chat page already does side-by-side, and my own research ranked provider variance above model choice. The blind engine stayed; the provider test became the lead. Having the plan attacked before building was the best hour I spent.
+
+**A pick without a reason is half a result.** After the build I checked the design against the Parlance Labs evals course I'm taking. Its core habit is reading outputs and writing down what went wrong, and my tool recorded which answer won and threw the reason away. I had cut notes to keep rounds fast. They're back as one optional line per round, and the reveal lists them together. The same check made the result card blunter about how little five single-run picks prove, and turned generated prompts into labelled drafts.
 
 **Streaming broke the blind test.** Showing answers as they stream tells you which contender is fastest and which one paused to reason, which is enough to guess identities. Answers now arrive together behind a single "3 of 4 in" counter. I gave up the nicest-looking part of the demo to keep the test honest.
 
@@ -109,7 +116,7 @@ The provider test is the point. If you can't tell four providers apart, take the
 
 **The record of who served an answer isn't there straight away.** The generation lookup returned nothing for the first few seconds after a stream ended, so the reveal retries it and fills in "served by" as the records appear.
 
-**A browser-held key needs its own guardrails.** The PKCE flow has no option to cap the key it creates, so the cap had to live in the app: an estimate, a ceiling, and a budget stop.
+**A browser-held key needs its own guardrails.** OpenRouter's approval screen offers a credit limit and an expiry for the key, but they're optional and my sign-in link can't prefill them, so I couldn't count on a cap being there. The app carries its own: an estimate, a ceiling, and a budget stop.
 
 ## Run it locally
 
@@ -130,7 +137,7 @@ After a test, "Copy pack link" gives you a URL that reproduces your prompts, lin
 src/lib/openrouter.ts   every OpenRouter call: sign-in, catalog, pinned streaming request, generation lookup
 src/lib/lineup.ts       default contenders and the cost estimate
 src/lib/pack.ts         pack links
-src/lib/results.ts      scoring, the verdict, the text summary
+src/lib/results.ts      scoring and the verdict
 src/components/         the four screens: connect, setup, round, reveal
 CONTEXT.md              the project's vocabulary (taste test, round, contender, pick, reveal, pack)
 ```

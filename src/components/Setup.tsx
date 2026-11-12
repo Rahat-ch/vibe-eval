@@ -55,6 +55,8 @@ export function Setup(props: Props) {
   const [writing, setWriting] = useState(false)
   const [writeError, setWriteError] = useState('')
   const [showSystem, setShowSystem] = useState(Boolean(pack.system))
+  // Prompts a model wrote, by their exact text. Editing one changes its text, so it stops being a draft.
+  const [drafts, setDrafts] = useState<Set<string>>(() => new Set())
 
   const setMode = (mode: Mode) => {
     if (mode === pack.mode) return
@@ -76,6 +78,7 @@ export function Setup(props: Props) {
     setWriteError('')
     try {
       const prompts = await writePrompts(props.authKey, useCase.trim())
+      setDrafts((d) => new Set([...d, ...prompts]))
       setPack((p) => ({ ...p, prompts: [...p.prompts.filter((x) => x.trim()), ...prompts] }))
     } catch (e) {
       setWriteError(e instanceof Error ? e.message : String(e))
@@ -85,6 +88,7 @@ export function Setup(props: Props) {
   }
 
   const prompts = pack.prompts.filter((p) => p.trim())
+  const untouched = prompts.filter((p) => drafts.has(p)).length
   const ready = pack.lineup.every((c) => c.model && c.provider)
   const duplicates =
     new Set(pack.lineup.map((c) => `${c.model}|${c.provider}|${c.effort}`)).size < pack.lineup.length
@@ -210,17 +214,26 @@ export function Setup(props: Props) {
       <section>
         <h2>3. Your prompts</h2>
         <p className="fine">
-          Use real inputs from your own task: the messages your product actually receives. Each prompt is one round.
+          Use real inputs from your own task: the messages your product actually receives, and above all the ones
+          that have gone wrong before. Easy prompts make every contender look the same. Each prompt is one round.
         </p>
         {pack.prompts.map((p, i) => (
           <div className="prompt-row" key={i}>
-            <textarea
-              rows={3}
-              placeholder={`Prompt ${i + 1}`}
-              aria-label={`Prompt ${i + 1}`}
-              value={p}
-              onChange={(e) => setPrompt(i, e.target.value)}
-            />
+            <div>
+              <textarea
+                rows={3}
+                placeholder={`Prompt ${i + 1}`}
+                aria-label={`Prompt ${i + 1}`}
+                value={p}
+                onChange={(e) => setPrompt(i, e.target.value)}
+              />
+              {drafts.has(p) && (
+                <p className="draft-note">
+                  <span className="tag">Draft</span> Written by a model. Edit it to sound like what your users
+                  really send.
+                </p>
+              )}
+            </div>
             {pack.prompts.length > 1 && (
               <button
                 className="link"
@@ -235,7 +248,10 @@ export function Setup(props: Props) {
         <button onClick={() => setPack((p) => ({ ...p, prompts: [...p.prompts, ''] }))}>Add a prompt</button>
 
         <div className="generate">
-          <label htmlFor="use-case">No prompts to hand? Describe your use case and a model will write five.</label>
+          <label htmlFor="use-case">
+            No prompts to hand? Describe your use case and a model will draft five to edit. Generated prompts are
+            tidier and easier than real ones, so treat them as a starting point.
+          </label>
           <div className="generate-row">
             <input
               id="use-case"
@@ -245,7 +261,7 @@ export function Setup(props: Props) {
               onKeyDown={(e) => e.key === 'Enter' && useCase.trim() && !writing && generate()}
             />
             <button onClick={generate} disabled={!useCase.trim() || writing}>
-              {writing ? 'Writing…' : 'Write some for me'}
+              {writing ? 'Drafting…' : 'Draft some for me'}
             </button>
           </div>
           {writeError && <p className="error">{writeError}</p>}
@@ -321,6 +337,12 @@ export function Setup(props: Props) {
             Start the blind taste test
           </button>
           {problem && <span className="fine">{problem}</span>}
+          {!problem && untouched > 0 && (
+            <span className="fine">
+              {untouched} of {prompts.length} prompts {untouched === 1 ? 'is an unedited draft' : 'are unedited drafts'}
+              . The result will say more with real ones.
+            </span>
+          )}
         </div>
       </section>
     </main>

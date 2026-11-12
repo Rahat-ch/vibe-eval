@@ -10,13 +10,14 @@ interface Props {
   spent: number
   budget: number
   onPick: (pick: Pick) => void
+  onNote: (note: string) => void
   onNext: () => void
   onFinish: () => void
 }
 
 const LETTERS = 'ABCDEFGH'
 
-export function RoundView({ round, index, total, contenders, spent, budget, onPick, onNext, onFinish }: Props) {
+export function RoundView({ round, index, total, contenders, spent, budget, onPick, onNote, onNext, onFinish }: Props) {
   const arrived = round.answers.filter(Boolean).length
   const last = index + 1 >= total
   const answered = round.answers.filter((a) => a && !a.error).length
@@ -92,6 +93,27 @@ export function RoundView({ round, index, total, contenders, spent, budget, onPi
               None of these are good
             </button>
           </div>
+
+          {/* The pick says which answer won. The note says why, which is the part you can act on. */}
+          {round.pick && (
+            <label className="why">
+              <span>
+                {round.pick.kind === 'best'
+                  ? 'Why? What did the others get wrong?'
+                  : round.pick.kind === 'tie'
+                    ? 'Anything they all got right or wrong?'
+                    : 'What was wrong with them?'}{' '}
+                <i>Optional, one line.</i>
+              </span>
+              <input
+                value={round.note ?? ''}
+                maxLength={200}
+                placeholder="e.g. the others recommended shows that don't match the mood"
+                onChange={(e) => onNote(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && onNext()}
+              />
+            </label>
+          )}
 
           <div className="actions">
             <button className="primary" disabled={!round.pick} onClick={onNext}>

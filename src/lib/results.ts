@@ -1,5 +1,5 @@
-// Turning a finished taste test into the reveal: per-contender numbers, a
-// one-line verdict, and a plain-text summary to paste elsewhere.
+// Turning a finished taste test into the reveal: per-contender numbers
+// and a one-line verdict.
 
 import { money } from './lineup'
 import type { Pack, Round } from './types'
@@ -82,25 +82,27 @@ export function verdict(pack: Pack, rounds: Round[], stats: Stats[], name: (i: n
 
   if (ties >= n / 2 || first.wins === 0) {
     const what = pack.mode === 'provider' ? 'providers' : 'models'
+    // A tie has two readings, and only one of them is good news.
+    const caveat = `Either they really are interchangeable for this task, or these prompts are too easy to separate them. Try prompts that have gone wrong for you before.`
     return {
       headline: `You couldn't tell the ${what} apart in ${ties} of ${n} ${rounds_}.`,
       detail:
         cheapest && priciest && cheapest !== priciest
-          ? `If they taste the same, take the cheapest: ${name(cheapest.contender)} at ${money(cheapest.avgCost!)} per answer, ${times(priciest.avgCost!, cheapest.avgCost!)} less than ${name(priciest.contender)}.`
-          : 'If they taste the same, take the cheapest or the fastest.',
+          ? `${caveat} If they still tie, take the cheapest: ${name(cheapest.contender)} at ${money(cheapest.avgCost!)} per answer, ${times(priciest.avgCost!, cheapest.avgCost!)} less than ${name(priciest.contender)}.`
+          : `${caveat} If they still tie, take the cheapest or the fastest.`,
     }
   }
 
   const leaders = ranked.filter((s) => s.wins === first.wins)
   if (leaders.length === 2) {
     return {
-      headline: `A split decision: ${name(first.contender)} and ${name(second.contender)} each won ${first.wins} of ${n} ${rounds_}.`,
+      headline: `A split decision: you picked ${name(first.contender)} and ${name(second.contender)} in ${first.wins} of ${n} ${rounds_} each.`,
       detail: 'Run a few more prompts to separate them, or let cost and speed decide.',
     }
   }
   if (leaders.length > 2) {
     return {
-      headline: `No clear favourite: ${leaders.length} contenders each won ${first.wins} of ${n} ${rounds_}.`,
+      headline: `No clear favourite: you picked ${leaders.length} contenders in ${first.wins} of ${n} ${rounds_} each.`,
       detail: 'Your picks were spread evenly. Run more prompts, or let cost and speed decide.',
     }
   }
@@ -116,43 +118,10 @@ export function verdict(pack: Pack, rounds: Round[], stats: Stats[], name: (i: n
     }
   }
   if (pack.mode === 'model' && first.contender !== 0) {
-    detail = `${detail} Your current model, ${name(0)}, won ${stats[0].wins}.`.trim()
+    detail = `${detail} Your current model, ${name(0)}, was picked ${stats[0].wins === 1 ? 'once' : `${stats[0].wins} times`}.`.trim()
+  }
+  if (first.wins - second.wins === 1) {
+    detail = `${detail} A one-round lead could be luck; run it again before you switch.`.trim()
   }
   return { headline: `You preferred ${name(first.contender)} in ${first.wins} of ${n} ${rounds_}.`, detail }
-}
-
-function pad(s: string, n: number) {
-  return s.length >= n ? s : s + ' '.repeat(n - s.length)
-}
-
-/** Plain text for pasting into Discord: a code block, since Discord has no tables. */
-export function textSummary(
-  pack: Pack,
-  rounds: Round[],
-  stats: Stats[],
-  name: (i: number) => string,
-  link: string,
-): string {
-  const v = verdict(pack, rounds, stats, name)
-  const n = judged(rounds).length
-  const kind = pack.mode === 'provider' ? 'provider test' : 'model test'
-  const width = Math.max(...stats.map((s) => name(s.contender).length), 9)
-  const rows = [...stats]
-    .sort((a, b) => b.wins - a.wins)
-    .map(
-      (s) =>
-        `${pad(name(s.contender), width)}  ${pad(`${s.wins}/${n}`, 5)}  ${pad(s.avgCost != null ? money(s.avgCost) : '-', 9)}  ${s.avgTotal != null ? s.avgTotal.toFixed(1) + 's' : '-'}`,
-    )
-  return [
-    `**Vibe Eval, blind ${kind}${pack.title ? `: ${pack.title}` : ''}**`,
-    v.headline,
-    v.detail,
-    '```',
-    `${pad('contender', width)}  ${pad('picks', 5)}  ${pad('$/answer', 9)}  time`,
-    ...rows,
-    '```',
-    `Run the same pack on your own prompts and key: ${link}`,
-  ]
-    .filter(Boolean)
-    .join('\n')
 }

@@ -81,4 +81,6 @@ export interface Round {
   /** Display order: position -> contender index. Shuffled so position says nothing. */
   order: number[]
   pick?: Pick
+  /** The builder's optional one-line reason for the pick: what decided it, or what the others got wrong. */
+  note?: string
 }
