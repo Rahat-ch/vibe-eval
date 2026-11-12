@@ -2,7 +2,7 @@
 
 A blind taste test for language models. Paste your own prompts, get four answers with the names hidden, pick the one you like, then see who wrote it and what it cost.
 
-**Try it:** https://vibe-eval.rahatcodes.com (sign in with OpenRouter, or press "Try the demo" for placeholder answers and no account).
+**Try it:** https://vibe-eval.pages.dev (sign in with OpenRouter, or press "Try the demo" for placeholder answers and no account).
 
 ## Run it locally
 
