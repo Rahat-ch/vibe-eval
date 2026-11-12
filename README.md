@@ -4,6 +4,8 @@ A blind taste test for language models. Paste your own prompts, get four answers
 
 **Try it:** https://vibe-eval.pages.dev (sign in with OpenRouter, or press "Try the demo" for placeholder answers and no account).
 
+**Watch the demo (6 min):** https://vibe-eval.pages.dev/demo.mp4
+
 **Part 2, the growth plan:** https://vibe-eval.pages.dev/growth-plan
 
 ## Run it locally
