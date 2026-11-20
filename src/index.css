@@ -1096,22 +1096,3 @@ textarea {
     transition: none !important;
   }
 }
-
-/* ---- Demo page --------------------------------------------------------- */
-
-a.brand {
-  text-decoration: none;
-}
-
-.demo {
-  max-width: 780px;
-}
-
-.demo video {
-  display: block;
-  width: 100%;
-  border-radius: var(--r-panel);
-  border: 1px solid var(--line);
-  background: #000;
-  margin: 20px 0 14px;
-}
