@@ -17,14 +17,13 @@ export function Demo() {
         </a>
         <nav>
           <a href="/">Taste test</a>
-          <a href="/growth-plan">Growth plan</a>
           <a href={REPO_URL} target="_blank" rel="noreferrer">
             Source
           </a>
         </nav>
       </header>
 
-      <main className="plan demo">
+      <main className="demo">
         <p className="eyebrow">Demo</p>
         <h1>Vibe Eval in six minutes</h1>
         <p className="lede">
@@ -36,7 +35,7 @@ export function Demo() {
           <source src="/demo.mp4" type="video/mp4" />
         </video>
         <p className="fine">
-          <a href="/">Try it yourself</a>, or read the <a href="/growth-plan">growth plan</a> built on it.
+          <a href="/">Try it yourself</a>.
         </p>
       </main>
     </div>

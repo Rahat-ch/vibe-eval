@@ -6,8 +6,6 @@ A blind taste test for language models. Paste your own prompts, get four answers
 
 **Watch the demo (6 min):** https://vibe-eval.pages.dev/demo
 
-**Part 2, the growth plan:** https://vibe-eval.pages.dev/growth-plan
-
 ## Run it locally
 
 ```sh
